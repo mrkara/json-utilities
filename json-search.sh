@@ -19,6 +19,12 @@ fi
 json_file=$1
 search_term=$2
 
-# Search the JSON file for the search term
-jq --arg term "$search_term" '.. | select(type == "string" and contains($term))' "$json_file"
+# Search the JSON file and output the parent node of the found value
+jq --arg term "$search_term" '
+    path(.. | select(type == "string" and contains($term))) as $p | 
+    if $p | length > 1 then 
+        getpath($p[:-1]) 
+    else 
+        . 
+    end' "$json_file"
 
