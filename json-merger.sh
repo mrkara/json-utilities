@@ -6,7 +6,11 @@ if [ "$#" -eq 0 ]; then
     exit 1
 fi
 
-echo "[" > merged.json # Start of the JSON array
+# Start the merged JSON array
+echo -n "[" > merged.json
+
+# Track the first file to handle comma insertion
+first_file=1
 
 # Iterate over all arguments
 for file in "$@"
@@ -16,16 +20,19 @@ do
         exit 1
     fi
 
-    # Add comma between files, except for the first one
-    if [ "$file" != "$1" ]; then
-        echo "," >> merged.json
+    # Add comma before the current file if it's not the first one
+    if [ "$first_file" -ne 1 ]; then
+        echo -n "," >> merged.json
+    else
+        first_file=0
     fi
 
-    # Remove the last character (newline) from the json file and append it to the merged file
-    cat "$file" | head -c -1 >> merged.json
+    # Append the content of the current file to merged.json
+    cat "$file" >> merged.json
 done
 
-echo "]" >> merged.json # End of the JSON array
+# Close the JSON array
+echo "]" >> merged.json
 
 echo "JSON files have been merged into merged.json"
 
